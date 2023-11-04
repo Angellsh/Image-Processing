@@ -25,75 +25,228 @@ struct Pixel{
     unsigned char green;
     unsigned char red;
 
+
+
+
 };
 struct Data{
     vector<Pixel> pixels;
     Header header;
     Pixel pixel;
+    bool operator ==(const Data& otherData) const;
+
 
 };
+
+void addGreenChannel(Data& data, int scaleFactor);
+void scaleRedChannel(Data& data, float scaleFactor);
+void scaleBlueChannel(Data& data, float scaleFactor);
+void scaleGreenChannel(Data& data, float scaleFactor);
 Data change(Data& data);
 Data Multiply(Data& data1, Data& data2);
-void Screen();
 Data Subtract(Data& top, Data& bottom);
-void Overlay();
+Data Overlay(Data& top, Data& bottom);
 Data Screen(Data& top, Data& bottom);
 Data readFile(ifstream& file);
+Data rotate180(Data& data);
 void writeFile(ofstream& file, Data& data);
+void Test(string resultFile, string exampleFile);
 
 
+bool Data::operator==(const Data& otherData) const{
+    bool cond =true;
+    int count = 0;
+     for (unsigned int i = 0; i < pixels.size(); i++){ 
+       if((pixels[i].red != otherData.pixels[i].red )|| (pixels[i].blue != otherData.pixels[i].blue)|| (pixels[i].green != otherData.pixels[i].green)){
+       count++;
+       if (count<3) {
+        cout<<"failed at pixel number " <<i<<endl;
+        cout<<"pixel for data: red - "<< (int)pixels[i].red<<" green - "<<(int)pixels[i].red<<" blue - "<<(int)pixels[i].blue<<endl;
+        cout<<"pixel for otherData: red - "<< (int)otherData.pixels[i].red<<"green - "<<(int)otherData.pixels[i].red<<" blue - "<<(int)otherData.pixels[i].blue<<endl;}
+         return false;}
+     }
+          return true;
+}
 int main(){
     //reading car object 
-    ifstream layerFile("layer1.tga", ios_base::binary);
-    if (!layerFile.is_open()){
-        cout<<"file 1 not open";
-    }
-    cout<<"file 1 open"<<endl;
+    ifstream layerFile("input/layer1.tga", ios_base::binary);
+    if (!layerFile.is_open()){   cout<<"file 1 not open";}
+    ifstream patterFile("input/pattern1.tga", ios_base::binary);
+    if (!patterFile.is_open()){cout<<"patter 1 Not open";}
+    ifstream carFile("input/car.tga", ios_base::binary);
+    if (!carFile.is_open()){cout<<"Car image is not open"; }
+     ifstream layer2("input/layer2.tga", ios_base::binary);
+    if (!layer2.is_open()){ cout<<"layer2 image is not open";}
+    ifstream pattern2("input/pattern2.tga", ios_base::binary);
+    if (!pattern2.is_open()){ cout<<"pattern2 image is not open";}
+    ifstream textFile("input/text.tga", ios_base::binary);
+   if (!textFile.is_open()){ cout<<"text1 image is not open";}
+    ifstream textFile2("input/text2.tga", ios_base::binary);
+   if (!textFile2.is_open()){ cout<<"text2 image is not open";}
+    ifstream layerRed("input/layer_red.tga", ios_base::binary);
+    if (!layerRed.is_open()){ cout<<"layer red image is not open";}
+     ifstream layerGreen("input/layer_green.tga", ios_base::binary);
+    if (!layerGreen.is_open()){ cout<<"layer green image is not open";}
+    ifstream layerBlue("input/layer_blue.tga", ios_base::binary);
+    if (!layerBlue.is_open()){ cout<<"layer blue image is not open";}
+    ifstream circles("input/circles.tga", ios_base::binary);
+    if (!circles.is_open()){ cout<<"circles image is not open";}
+    cout<<"all images read"<<endl;
 
-    //18 bytes lngth for header
-    Data layer1 = readFile(layerFile);
-    ifstream patterFile("pattern1.tga", ios_base::binary);
-    if (!patterFile.is_open()){
-        cout<<"2. Not open";
-    }
-    cout<<"file 2 open"<<endl;
+
+   
+
+   //loading data 
     Data pattern1 = readFile(patterFile);
-    Data newdata = Multiply(pattern1,layer1);
-    ofstream newfile("test1.tga");
-    if (!newfile.is_open()){
-        cout<<"3. Not open";
-    }
-    cout<<"file for output is open"<<endl;
-  
-    writeFile(newfile, newdata);    
-    //test 2
-    ifstream carFile("car.tga", ios_base::binary);
-    if (!carFile.is_open()){
-        cout<<"Car image is not open";
-    }
-     ifstream layer2("layer2.tga", ios_base::binary);
-    if (!layer2.is_open()){
-        cout<<"layer2 image is not open";
-    }
+    Data layer1 = readFile(layerFile);
     Data carImage = readFile(carFile);
     Data layer2Image = readFile(layer2);
-    Data newImage2= Subtract(layer2Image, carImage);
-    ofstream newFile2("test2.tga");
-    writeFile(newFile2, newImage2);
-   //test 3
-    ifstream pattern2("pattern2.tga", ios_base::binary);
     Data pattern2Image =  readFile(pattern2);
-    ifstream textFile("text.tga", ios_base::binary);
     Data textImage = readFile(textFile);
-    Data temp = Multiply(layer1, pattern2Image);
-    Data test3 = Screen(layer1, pattern1);
-    ofstream newFile3("test3.tga");
-    writeFile(newFile3, test3);
-    
-    
+    Data layerBlueImage = readFile(layerBlue);    
+    Data layerGreenImage = readFile(layerGreen);
+     Data layerRedImage = readFile(layerRed);
+     Data text2Image = readFile(textFile2);
+     Data circlesImage = readFile(circles);
 
 
-    //pixels start bottom left corner -0
+
+    //test1
+     Data newdata = Multiply(pattern1,layer1);
+     ofstream newfile("output/test1.tga", ios_base::binary);
+    if (!newfile.is_open()){cout<<"newfile 1 not open";}
+     writeFile(newfile, newdata);    
+     newfile.close();
+     string examplePath1 = "examples/EXAMPLE_part1.tga";
+     string resultPath1 = "output/test1.tga";
+     cout<<"Test #1: ";
+     Test(resultPath1, examplePath1);
+
+    //test 2
+    Data newImage2= Subtract(layer2Image, carImage);
+    ofstream newFile2("output/test2.tga", ios_base::binary);
+    writeFile(newFile2, newImage2);
+    newFile2.close();
+    string resultPath2 = "output/test2.tga";
+    string examplePath2= "examples/EXAMPLE_part2.tga";
+    cout<<"Test #2: ";
+    Test(resultPath2, examplePath2);
+
+
+   //test 3
+    Data temp = Multiply(pattern2Image,layer1);
+    Data newData3 = Screen(textImage, temp);
+    ofstream newFile3("output/test3.tga", ios_base::binary);
+    if(!newFile3.is_open()){cout<< "it is not open";}
+    writeFile(newFile3, newData3);
+    newFile3.close();
+    string resultPath3 = "output/test3.tga";
+    string examplePath3= "examples/EXAMPLE_part3.tga";
+    cout<<"Test #3: ";
+    Test(resultPath3, examplePath3);
+
+
+    //test 4
+    Data temp2 = Multiply(circlesImage, layer2Image);
+    Data newData4= Subtract(pattern2Image,temp2);
+    ofstream newFile4("output/test4.tga", ios_base::binary);
+    writeFile(newFile4, newData4);
+    newFile4.close();
+    string resultPath4 = "output/test4.tga";
+    string examplePath4= "examples/EXAMPLE_part4.tga";
+    cout<<"Test #4: ";
+    Test(resultPath4, examplePath4);
+
+
+    //test 5
+     Data newData5= Overlay(layer1,pattern1);
+     ofstream newFile5("output/test5.tga", ios_base::binary);
+     writeFile(newFile5, newData5);
+     string resultPath5 = "output/test5.tga";
+     string examplePath5= "examples/EXAMPLE_part5.tga";
+     cout<<"Test #5: ";
+     Test(resultPath5, examplePath5);
+
+
+     //test 6
+    Data newData6 =carImage;
+    addGreenChannel(newData6, 200);
+    ofstream newFile6("output/test6.tga", ios_base::binary);
+    writeFile( newFile6, newData6);
+    string resultPath6 = "output/test6.tga";
+     string examplePath6= "examples/EXAMPLE_part6.tga";
+     cout<<"Test #6: ";
+     Test(resultPath6, examplePath6);
+
+
+     
+     //test 7
+    //ifstream car2file("input/car.tga", ios_base::binary);
+    // Data newData7 = readFile(car2file);
+     Data newData7 = carImage;
+     scaleRedChannel(newData7, 4);
+     scaleBlueChannel(newData7, 0);
+     ofstream newFile7("output/test7.tga", ios_base::binary);
+     writeFile( newFile7, newData7);
+     string resultPath7 = "output/test7.tga";
+     string examplePath7= "examples/EXAMPLE_part7.tga";
+     cout<<"Test #7: ";
+     Test(resultPath7, examplePath7);
+
+
+     
+    //test 8
+     Data newData8 = carImage;
+     ofstream part8_r("output/part8_r.tga", ios_base::binary);
+     ofstream part8_g("output/part8_g.tga", ios_base::binary);
+     ofstream part8_b("output/part8_b.tga", ios_base::binary);
+     Data part8_rImage = carImage; //red
+     Data part8_gImage = carImage; //green
+     Data part8_bImage = carImage; //blue
+     for (int i=0; i<newData7.pixels.size();i++){
+          part8_rImage.pixels[i].green=part8_rImage.pixels[i].red;
+          part8_rImage.pixels[i].blue=part8_rImage.pixels[i].red;
+          part8_gImage.pixels[i].red=part8_gImage.pixels[i].green;
+          part8_gImage.pixels[i].blue=part8_gImage.pixels[i].green;
+          part8_bImage.pixels[i].red=part8_bImage.pixels[i].blue;
+          part8_bImage.pixels[i].green=part8_bImage.pixels[i].blue;
+
+     }
+    writeFile(part8_r, part8_rImage );
+    cout<<"Test #8_r: ";
+    Test("output/part8_r.tga","examples/EXAMPLE_part8_r.tga");
+    writeFile(part8_g, part8_gImage );
+    cout<<"Test #8_g: ";
+    Test("output/part8_g.tga","examples/EXAMPLE_part8_g.tga");
+    cout<<"Test #8_b: ";
+    writeFile(part8_b,part8_bImage);
+    Test("output/part8_b.tga","examples/EXAMPLE_part8_b.tga");
+
+
+    
+    //test 9
+    Data combined;
+    combined.header=layerRedImage.header;
+    combined.pixels.resize(layerRedImage.pixels.size());
+    for(unsigned int i=0;i<layerRedImage.pixels.size(); i++){
+         combined.pixels[i].red = layerRedImage.pixels[i].red;
+         combined.pixels[i].green = layerGreenImage.pixels[i].green;
+         combined.pixels[i].blue = layerBlueImage.pixels[i].blue;
+     }  
+     ofstream newFile9("output/test9.tga", ios_base::binary);
+     writeFile(newFile9, combined);
+     string resultPath9 = "output/test9.tga";
+     string examplePath9 = "examples/EXAMPLE_part9.tga";
+     cout<<"Test #9: ";
+     Test(resultPath9, examplePath9);
+
+
+    //test 10
+    Data rotated = rotate180(text2Image);
+    ofstream newFile10("output/test10.tga", ios_base::binary);
+    writeFile(newFile10, rotated);
+     cout<<"Test #10: ";
+     Test("output/test10.tga", "examples/EXAMPLE_part10.tga");
     return 0;
 }
 Data readFile(ifstream& file){
@@ -167,29 +320,34 @@ Data change(Data& data){
 
 Data Multiply(Data& data, Data& otherData){
     Data newImage;
+    newImage.header= otherData.header;
     newImage.pixels.resize(data.pixels.size());
     for (unsigned int i=0;i<data.pixels.size();i++){
-       float temp1 = (float)(data.pixels[i].blue*otherData.pixels[i].blue);
-       newImage.pixels[i].blue=float((temp1/255.05)+0.5f);
-       float temp2 = (float)(data.pixels[i].green*otherData.pixels[i].green);
-       newImage.pixels[i].green = float((temp2/255)+0.5f);
-       float temp3 = (float)(data.pixels[i].blue*otherData.pixels[i].red);
-       newImage.pixels[i].red=float((temp3/255)+0.5f);
- 
-    }
-    newImage.header=data.header;
-    return newImage;
-    }
+    float normalBlue = data.pixels[i].blue/255.0f;
+    float normalBlueOther = otherData.pixels[i].blue/255.0f;
+    float normalRed = data.pixels[i].red/255.0f;
+    float normalRedOther = otherData.pixels[i].red/255.0f;
+    float normalGreen = data.pixels[i].green/255.0f;
+    float normalGreenOther = otherData.pixels[i].green/255.0f;
+
+    newImage.pixels[i].blue=((normalBlue*normalBlueOther)*255.0f)+0.5f;
+    newImage.pixels[i].red=((normalRed*normalRedOther)*255.0f)+0.5f;
+    newImage.pixels[i].green=((normalGreen*normalGreenOther)*255.0f)+0.5f;
+    }return newImage;
+  
+  }
+
 Data Subtract(Data& top, Data& bottom){
     Data newImage;
+    newImage.header=top.header;
+
     newImage.pixels.resize(top.pixels.size());
     for(unsigned int i=0; i<newImage.pixels.size();i++){
-        newImage.pixels[i].blue = max(0, (int)(bottom.pixels[i].blue - top.pixels[i].blue));
-        newImage.pixels[i].green = max(0, (int)(bottom.pixels[i].green - top.pixels[i].green));
-        newImage.pixels[i].red = max(0,(int)(bottom.pixels[i].red - bottom.pixels[i].red));
+        newImage.pixels[i].blue = max(0, (int)((bottom.pixels[i].blue - top.pixels[i].blue)));
+        newImage.pixels[i].green = max(0, (int)((bottom.pixels[i].green - top.pixels[i].green)));
+        newImage.pixels[i].red = max(0,(int)((bottom.pixels[i].red - top.pixels[i].red)));
 
     }
-    newImage.header=top.header;
     return newImage;
 
   
@@ -199,21 +357,88 @@ Data Screen(Data& top, Data& bottom){
     Data newImage;
     newImage.pixels.resize(top.pixels.size());
     for(unsigned int i=0; i<newImage.pixels.size();i++){
-        newImage.pixels[i].blue= max(0, int( 1-((1-top.pixels[i].blue)*(1-bottom.pixels[i].blue))/255.0f));
-        newImage.pixels[i].green= max(0, int( 1-((1-top.pixels[i].green)*(1-bottom.pixels[i].green))/255.0f));
-        newImage.pixels[i].green= max(0, int( 1-((1-top.pixels[i].red)*(1-bottom.pixels[i].red))/255.0f));
+        double normalBlueTop = (double)(top.pixels[i].blue)/255.0f;
+        double normalRedTop = (double)(top.pixels[i].red)/255.0f;
+        double normalGreenTop = (double)(top.pixels[i].green)/255.0f;
+        double normalBlueBottom = (double)(bottom.pixels[i].blue)/255.0f;
+        double normalRedBottom = (double)(bottom.pixels[i].red)/255.0f;
+        float normalGreenBottom = (double)(bottom.pixels[i].green)/255.0f;
+
+       // newImage.pixels[i].blue= max(0, int( 255.0f-(((255.0f-top.pixels[i].blue)*(255.0f-bottom.pixels[i].blue))/255.)0f)+0.5f));
+        newImage.pixels[i].blue=  ((1.0-((1.0-normalBlueTop)*(1.0-normalBlueBottom)))*255.0)+0.5;
+        newImage.pixels[i].green= ((1.0-((1.0-normalGreenTop)*(1.0-normalGreenBottom)))*255.0)+0.5;
+        newImage.pixels[i].red=  ((1.0-((1.0-normalRedTop)*(1.0-normalRedBottom)))*255.0)+0.5;
+
+    }newImage.header=top.header;
+    return newImage;}
 
 
-    }
+Data Overlay(Data& top, Data& bottom){
+     Data newImage;
+    newImage.pixels.resize(top.pixels.size());
+    for(unsigned int i=0; i<newImage.pixels.size();i++){
+        float normalBlueTop = (float)(top.pixels[i].blue)/255;
+        float normalRedTop = (float)(top.pixels[i].red)/255;
+        float normalGreenTop = (float)(top.pixels[i].green)/255;
+        float normalBlueBottom = (float)(bottom.pixels[i].blue)/255;
+        float normalRedBottom = (float)(bottom.pixels[i].red)/255;
+        float normalGreenBottom = (float)(bottom.pixels[i].green)/255;
+        if (normalBlueBottom<= 0.5f){newImage.pixels[i].blue = (2*normalBlueBottom*normalBlueTop*255.0f)+0.5f;}
+        else{ newImage.pixels[i].blue = ((1-2*(1-normalBlueTop)*(1-normalBlueBottom))*255.0f)+0.5f;}
+        if (normalGreenBottom<= 0.5f){newImage.pixels[i].green = (2*normalGreenBottom*normalGreenTop*255.0f)+0.5f;}
+        else{ newImage.pixels[i].green = ((1-2*(1-normalGreenTop)*(1-normalGreenBottom))*255.0f)+0.5f;}
+        if (normalRedBottom<= 0.5f){newImage.pixels[i].red = (2*normalRedBottom*normalRedTop*255.0f)+0.5f;}
+        else{ newImage.pixels[i].red = ((1-2*(1-normalRedTop)*(1-normalRedBottom))*255.0f)+0.5f;}
+        }
     newImage.header=top.header;
     return newImage;
-
 }
 
+
+
+void addGreenChannel(Data& data, int scaleFactor){
+    for (unsigned int i=0; i<data.pixels.size(); i++){
+       data.pixels[i].green = min(255, data.pixels[i].green+scaleFactor);
+    }
+}
+void scaleRedChannel(Data& data, float scaleFactor){
+     for (unsigned int i=0; i<data.pixels.size(); i++){
+       float normalRed= (float)(data.pixels[i].red)/255;
+       data.pixels[i].red = min(255, (int)((normalRed*scaleFactor*255)+0.5f));
+    }
+}
+void scaleBlueChannel(Data& data, float scaleFactor){
+     for (unsigned int i=0; i<data.pixels.size(); i++){
+       float normalBlue= (float)(data.pixels[i].blue)/255;
+       data.pixels[i].blue = min(255, (int)((normalBlue*scaleFactor*255.0f)+0.5f));
+    }
+}
+void scaleGreenChannel(Data& data, float scaleFactor){
+     for (unsigned int i=0; i<data.pixels.size(); i++){
+     float normalGreen= (float)(data.pixels[i].green)/255;
+     data.pixels[i].green = min(255, (int)((normalGreen*scaleFactor*255.0f)+0.5f));
+    }
+}
+
+void Test(string resultFile, string exampleFile){
+    ifstream result(resultFile, ios_base::binary);
+    ifstream example(exampleFile, ios_base::binary);
+    if(! example.is_open()){cout<<"Example didnt open.Failed.";}
+    if(! result.is_open()){cout<<"Result didnt open.Failed.";}
+    Data resultImage = readFile(result);
+    Data exampleImage = readFile(example);
+    if(exampleImage==resultImage){
+        cout<<"Passed"<<endl;
+    }else{ cout<<"Failed"<<endl;}
     
-
-
-
-
-
-
+}
+Data rotate180(Data& data){
+    Data rotated;
+    rotated.header=data.header;
+    rotated.pixels.resize(data.pixels.size());
+    for (unsigned int i=0;i <rotated.pixels.size(); i++){
+        rotated.pixels[(rotated.pixels.size() - i-1)].blue = data.pixels[i].blue;
+        rotated.pixels[(rotated.pixels.size() - i-1)].red = data.pixels[i].red;
+        rotated.pixels[(rotated.pixels.size() - i-1)].green = data.pixels[i].green;
+    }return rotated;
+}
