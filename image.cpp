@@ -54,18 +54,10 @@ void Test(string resultFile, string exampleFile);
 
 
 bool Data::operator==(const Data& otherData) const{
-    bool cond =true;
-    int count = 0;
      for (unsigned int i = 0; i < pixels.size(); i++){ 
        if((pixels[i].red != otherData.pixels[i].red )|| (pixels[i].blue != otherData.pixels[i].blue)|| (pixels[i].green != otherData.pixels[i].green)){
-       count++;
-       if (count<3) {
-        cout<<"failed at pixel number " <<i<<endl;
-        cout<<"pixel for data: red - "<< (int)pixels[i].red<<" green - "<<(int)pixels[i].red<<" blue - "<<(int)pixels[i].blue<<endl;
-        cout<<"pixel for otherData: red - "<< (int)otherData.pixels[i].red<<"green - "<<(int)otherData.pixels[i].red<<" blue - "<<(int)otherData.pixels[i].blue<<endl;}
-         return false;}
-     }
-          return true;
+        return false;}
+        }return true;
 }
 int main(){
     //reading car object 
@@ -181,8 +173,6 @@ int main(){
 
      
      //test 7
-    //ifstream car2file("input/car.tga", ios_base::binary);
-    // Data newData7 = readFile(car2file);
      Data newData7 = carImage;
      scaleRedChannel(newData7, 4);
      scaleBlueChannel(newData7, 0);
