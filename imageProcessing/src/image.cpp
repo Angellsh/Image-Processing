@@ -241,11 +241,10 @@ int main(){
 
 
      //test 11 extra credit
-     Data collage= collage4(carImage, circlesImage, pattern1,textImage );
-     //Data collage2 = combine2horizontally(carImage, circlesImage);
-     
+     Data collage= collage4(carImage, circlesImage, pattern1,textImage );     
      ofstream newFile11("output/test11.tga", ios_base::binary);
      writeFile(newFile11, collage);
+     cout<<"Test #11 - extra credit: ";
      Test("output/test11.tga", "examples/EXAMPLE_extracredit.tga");
 
 
